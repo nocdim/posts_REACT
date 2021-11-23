@@ -5,7 +5,7 @@ import App from './App';
 
 ReactDOM.render(
     <div>
-      Приложение работает!
+      <App />
     </div>,
   document.getElementById('root')
 );

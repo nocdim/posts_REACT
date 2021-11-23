@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Counter = () => {
+const Counter = () => { // компонент-функция, которая возвращает JSX
     const [count, setCount] = useState(0)  //деструктизация useState (1 параметр - переменная, 2 - функция)
 
     function increment(){
