@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import PostForm from "./components/Postform";
 import Postlist from "./components/Postlist";
-import MyButton from "./components/UI/button/MyButton";
 import MyInput from "./components/UI/input/MyInput";
+import MySelect from "./components/UI/select/MySelect";
+
 //import ClassCounter from "./components/ClassCounter";
 //import Counter from "./components/Counter";
 import './styles/App.css'
@@ -9,48 +11,63 @@ import './styles/App.css'
 function App() {
 
   const [posts, setPosts] = useState([
-    { id: 1, title: 'Javascript', body: 'Description' },
-    { id: 2, title: 'Javascript 2', body: 'Description' },
-    { id: 3, title: 'Javascript 3', body: 'Description' }
+    { id: 1, title: 'yuh', body: 'xx' },
+    { id: 2, title: 'bruh', body: 'qq' },
+    { id: 3, title: 'naniu', body: 'jj' }
   ])
 
-  const [post, setPost] = useState({title: '', body: ''}) // способ сделать инпут управляемым для передачи значений инпутов
+  const [selectedSort, setSelectedSort] = useState('') //реализуем двустороннее связывание / делаем компонент упарвляемым
+  const [searchQuery, setSearchQuery] = useState('')
 
+  function getSortedPosts() {
+    console.log('bruh')
+    if(selectedSort){
+      return [...posts].sort((a,b) => a[selectedSort].localeCompare(b[selectedSort]))
+    }
+    return posts
+  }
+
+  const sortedPosts = getSortedPosts()
   // const bodyInputRef = useRef() // способ получить данные из неуправляемого инпута
-
-  const addNewPost = (event) => {
-    event.preventDefault()
-    setPosts([...posts, { ...post, id: Date.now() }])
-    setPost({title: '', body: ''}) // очищаем поля при создании нового поста
+  // создание поста
+  const createPost = (newPost) => {
+    setPosts([...posts, newPost])
+  }
+  // получаем  post из дочернего элемента (удаление)
+  const removePost = (post) => {
+    setPosts(posts.filter(p => p.id !== post.id))
+  }
+ // сортировка
+  const sortPosts = (sort) => {
+    setSelectedSort(sort)
   }
 
   return (
     <div className="App">
-      <form>
-        {/* Управляемый компонент */}
-        <MyInput
-          value={post.title}
-          onChange={event => setPost({...post, title: event.target.value})}
-          type="text"
-          placeholder="Название поста"
+      <PostForm create={createPost} />
+      {/* Сортировка */}
+      <hr style={{margin: '15px 0'}} />
+      <div>
+        <MyInput 
+        value={searchQuery}
+        onChange={(event) => setSearchQuery(event.target.value)}
+        placeholder="Поиск" 
         />
-
-        <MyInput
-          value={post.body}
-          onChange={event => setPost({...post, body: event.target.value})}
-          type="text"
-          placeholder="Описание поста"
+        <MySelect
+            value={selectedSort}
+            onChange={sortPosts}
+            defaultvalue="Сортировка"
+            options={[
+              {value: 'title', name: 'По названию'},
+              {value: 'body', name: 'По описанию'}
+            ]}
         />
-
-        {/* Неуправляемый/неконтролируемый компонент */}
-        {/* <MyInput
-          ref={bodyInputRef}
-          type="text"
-          placeholder="Описание поста"
-        /> */}
-        <MyButton onClick={addNewPost}>Создать пост</MyButton>
-      </form>
-      <Postlist posts={posts} title="Посты про JS" />
+      </div>
+      {/* Условная отрисовка */}
+      {posts.length !== 0
+        ? <Postlist remove={removePost} posts={sortedPosts} title="Посты про JS" /> /* тернарный оператор. если постов нет, то выдаем h1 */
+        : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
+      }
     </div>
 
   );
