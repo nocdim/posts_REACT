@@ -2,6 +2,8 @@ import React, { useMemo, useState } from "react";
 import PostFilter from "./components/Postfilter";
 import PostForm from "./components/Postform";
 import Postlist from "./components/Postlist";
+import MyButton from "./components/UI/button/MyButton";
+import MyModal from "./components/UI/modal/MyModal";
 
 
 //import ClassCounter from "./components/ClassCounter";
@@ -16,14 +18,15 @@ function App() {
     { id: 3, title: 'naniu', body: 'jj' }
   ])
 
-//реализуем двустороннее связывание / делаем компонент упарвляемым
-  const [filter, setFilter] = useState({sort:'' , query: ''})
+  //реализуем двустороннее связывание / делаем компонент упарвляемым
+  const [filter, setFilter] = useState({ sort: '', query: '' })
+  const [modal, setModal] = useState(false)
 
   // хук useMemo
 
   const sortedPosts = useMemo(() => {
-    if(filter.sort){
-      return [...posts].sort((a,b) => a[filter.sort].localeCompare(b[filter.sort]))
+    if (filter.sort) {
+      return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
     }
     return posts
   }, [filter.sort, posts])
@@ -37,6 +40,7 @@ function App() {
   // создание поста
   const createPost = (newPost) => {
     setPosts([...posts, newPost])
+    setModal(false)
   }
   // получаем  post из дочернего элемента (удаление)
   const removePost = (post) => {
@@ -45,13 +49,19 @@ function App() {
 
   return (
     <div className="App">
-      <PostForm create={createPost} />
+      <MyButton style={{marginTop: 30}} onClick={() => setModal(true)}>
+        Создать пост
+      </MyButton>
+      <MyModal visible={modal} setVisible={setModal}>
+        <PostForm create={createPost} />
+      </MyModal>
+
       {/* Сортировка */}
-      <hr style={{margin: '15px 0'}} />
+      <hr style={{ margin: '15px 0' }} />
       <PostFilter filter={filter} setFilter={setFilter} />
       {/* Условная отрисовка */}
-       <Postlist remove={removePost} posts={sortedAndSearchedPosts} title="Посты про JS" />
-         
+      <Postlist remove={removePost} posts={sortedAndSearchedPosts} title="Посты про JS" />
+
     </div>
 
   );
