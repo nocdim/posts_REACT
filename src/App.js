@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import PostFilter from "./components/Postfilter";
 import PostForm from "./components/Postform";
 import Postlist from "./components/Postlist";
-import MyInput from "./components/UI/input/MyInput";
-import MySelect from "./components/UI/select/MySelect";
+
 
 //import ClassCounter from "./components/ClassCounter";
 //import Counter from "./components/Counter";
@@ -16,18 +16,23 @@ function App() {
     { id: 3, title: 'naniu', body: 'jj' }
   ])
 
-  const [selectedSort, setSelectedSort] = useState('') //реализуем двустороннее связывание / делаем компонент упарвляемым
-  const [searchQuery, setSearchQuery] = useState('')
+//реализуем двустороннее связывание / делаем компонент упарвляемым
+  const [filter, setFilter] = useState({sort:'' , query: ''})
 
-  function getSortedPosts() {
-    console.log('bruh')
-    if(selectedSort){
-      return [...posts].sort((a,b) => a[selectedSort].localeCompare(b[selectedSort]))
+  // хук useMemo
+
+  const sortedPosts = useMemo(() => {
+    if(filter.sort){
+      return [...posts].sort((a,b) => a[filter.sort].localeCompare(b[filter.sort]))
     }
     return posts
-  }
+  }, [filter.sort, posts])
 
-  const sortedPosts = getSortedPosts()
+  const sortedAndSearchedPosts = useMemo(() => {
+    return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.query.toLowerCase()))
+  }, [filter.query, sortedPosts])
+
+
   // const bodyInputRef = useRef() // способ получить данные из неуправляемого инпута
   // создание поста
   const createPost = (newPost) => {
@@ -37,37 +42,16 @@ function App() {
   const removePost = (post) => {
     setPosts(posts.filter(p => p.id !== post.id))
   }
- // сортировка
-  const sortPosts = (sort) => {
-    setSelectedSort(sort)
-  }
 
   return (
     <div className="App">
       <PostForm create={createPost} />
       {/* Сортировка */}
       <hr style={{margin: '15px 0'}} />
-      <div>
-        <MyInput 
-        value={searchQuery}
-        onChange={(event) => setSearchQuery(event.target.value)}
-        placeholder="Поиск" 
-        />
-        <MySelect
-            value={selectedSort}
-            onChange={sortPosts}
-            defaultvalue="Сортировка"
-            options={[
-              {value: 'title', name: 'По названию'},
-              {value: 'body', name: 'По описанию'}
-            ]}
-        />
-      </div>
+      <PostFilter filter={filter} setFilter={setFilter} />
       {/* Условная отрисовка */}
-      {posts.length !== 0
-        ? <Postlist remove={removePost} posts={sortedPosts} title="Посты про JS" /> /* тернарный оператор. если постов нет, то выдаем h1 */
-        : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
-      }
+       <Postlist remove={removePost} posts={sortedAndSearchedPosts} title="Посты про JS" />
+         
     </div>
 
   );
