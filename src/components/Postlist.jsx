@@ -2,6 +2,13 @@ import React from "react";
 import Postitem from "./Postitem";
 
 const Postlist = ({posts, title, remove}) => { // компонент-функция, которая возвращает JSX
+
+    if(!posts.length){
+        return (
+            <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
+        )
+    }
+
     return (
        <div> 
       <h1 style={{textAlign: "center"}}>{title}</h1>
