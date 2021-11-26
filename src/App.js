@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useMemo, useState } from "react";
 import PostFilter from "./components/Postfilter";
 import PostForm from "./components/Postform";
@@ -20,12 +21,11 @@ function App() {
   const [modal, setModal] = useState(false)
   const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
 
-  // хук useMemo
-
-  
-
-  
-
+  // запрос на сервер
+  async function fetchPosts() {
+    const response = await axios.get('https://jsonplaceholder.typicode.com/posts')
+    setPosts(response.data)
+  }
 
   // const bodyInputRef = useRef() // способ получить данные из неуправляемого инпута
   // создание поста
