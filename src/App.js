@@ -1,11 +1,13 @@
-import axios from "axios";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import PostService from "./API/PostService";
 import PostFilter from "./components/Postfilter";
 import PostForm from "./components/Postform";
 import Postlist from "./components/Postlist";
 import MyButton from "./components/UI/button/MyButton";
+import Loader from "./components/UI/Loader/Loader";
 import MyModal from "./components/UI/modal/MyModal";
-import { usePosts } from "./hooks/usePosts";
+import { usePosts } from "./hooks/usePosts.jsx";
+import { useFetching } from "./hooks/useFetching";
 
 
 //import ClassCounter from "./components/ClassCounter";
@@ -20,12 +22,16 @@ function App() {
   const [filter, setFilter] = useState({ sort: '', query: '' })
   const [modal, setModal] = useState(false)
   const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
+  const [fetchPosts, arePostsLoading, postError] = useFetching( async () => {
+    const posts = await PostService.getAll()
+    setPosts(posts)
+  })
+
+  useEffect(() => {
+    fetchPosts()
+  }, [])
 
   // запрос на сервер
-  async function fetchPosts() {
-    const response = await axios.get('https://jsonplaceholder.typicode.com/posts')
-    setPosts(response.data)
-  }
 
   // const bodyInputRef = useRef() // способ получить данные из неуправляемого инпута
   // создание поста
@@ -51,10 +57,14 @@ function App() {
       <hr style={{ margin: '15px 0' }} />
       <PostFilter filter={filter} setFilter={setFilter} />
       {/* Условная отрисовка */}
-      <Postlist remove={removePost} posts={sortedAndSearchedPosts} title="Посты про JS" />
-
+      {postError &&
+        <h1 style={{display: 'flex', justifyContent: 'center', marginTop: 50}}>Произошла ошибка - {postError}</h1>
+      }
+      {arePostsLoading
+        ? <div style={{display: 'flex', justifyContent: 'center', marginTop: 50}}><Loader /></div>
+        : <Postlist remove={removePost} posts={sortedAndSearchedPosts} title="Посты про JS" />
+      }
     </div>
-
   );
 }
 
